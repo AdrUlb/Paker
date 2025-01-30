@@ -131,6 +131,8 @@ public static class ReanimXmlReader
 		var frame = ReanimTransform.DefaultFieldPlaceholder;
 		var alpha = ReanimTransform.DefaultFieldPlaceholder;
 		string? imageName = null;
+		string? fontName = null;
+		string? text = null;
 
 		while (reader.Read())
 		{
@@ -145,7 +147,16 @@ public static class ReanimXmlReader
 					{
 						var propName = reader.Name;
 
-						if (!reader.Read() || reader.NodeType != XmlNodeType.Text)
+						if (!reader.Read())
+							throw new("FIXME");
+
+						if (reader.NodeType == XmlNodeType.EndElement && reader.Name == propName)
+						{
+							imageName = null;
+							break;
+						}
+
+						if (reader.NodeType != XmlNodeType.Text)
 							throw new("FIXME");
 
 						switch (propName)
@@ -159,8 +170,10 @@ public static class ReanimXmlReader
 							case "f": frame = float.Parse(reader.Value); break;
 							case "a": alpha = float.Parse(reader.Value); break;
 							case "i": imageName = reader.Value; break;
+							case "font": fontName = reader.Value; break;
+							case "text": text = reader.Value; break;
 							default:
-								throw new NotSupportedException($"Reanim transform tag '{reader.Name}' not supported.");
+								throw new NotSupportedException($"Reanim transform property '{propName}' not supported.");
 						}
 
 						if (!reader.Read() || reader.NodeType != XmlNodeType.EndElement || reader.Name != propName)
@@ -183,7 +196,9 @@ public static class ReanimXmlReader
 			ScaleY = scaleY,
 			Frame = frame,
 			Alpha = alpha,
-			ImageName = imageName
+			ImageName = imageName,
+			FontName = fontName,
+			Text = text
 		};
 	}
 }

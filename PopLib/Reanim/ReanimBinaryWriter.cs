@@ -9,37 +9,38 @@ public static class ReanimBinaryWriter
 
 	public static void WriteToStream(in ReanimAnimation animation, Stream stream)
 	{
-		stream.WriteUint(0xDEADFED4);
+		using var ms = new MemoryStream();
+
+		//
+		ms.WriteUint(0xB393B4C0);
 
 		// FIXME
-		stream.WriteInt(0);
+		ms.WriteInt(0);
 
-		using var zlibStream = new ZLibStream(stream, CompressionMode.Compress);
+		ms.WriteInt(animation.Tracks.Length);
+		ms.WriteFloat(animation.Fps);
 
-		zlibStream.WriteUint(0xB393B4C0);
-
-		// FIXME
-		zlibStream.WriteInt(0);
-
-		zlibStream.WriteInt(animation.Tracks.Length);
-		zlibStream.WriteFloat(animation.Fps);
-
-		zlibStream.WriteInt(0);
-		zlibStream.WriteInt(12);
+		ms.WriteInt(0);
+		ms.WriteInt(12);
 
 		for (var i = 0; i < animation.Tracks.Length; i++)
 		{
 			ref var track = ref animation.Tracks[i];
 
 			// FIXME
-			zlibStream.WriteInt(0);
-			zlibStream.WriteInt(0);
+			ms.WriteInt(0);
+			ms.WriteInt(0);
 
-			zlibStream.WriteInt(track.Transforms.Length);
+			ms.WriteInt(track.Transforms.Length);
 		}
 
 		for (var i = 0; i < animation.Tracks.Length; i++)
-			WriteTrack(animation.Tracks[i], zlibStream);
+			WriteTrack(animation.Tracks[i], ms);
+
+		stream.WriteUint(0xDEADFED4);
+		stream.WriteUint((uint)ms.Length);
+		using var zlibStream = new ZLibStream(stream, CompressionMode.Compress);
+		ms.WriteTo(zlibStream);
 	}
 
 	private static void WriteTrack(in ReanimTrack track, Stream stream)

@@ -1,28 +1,19 @@
 ﻿using PopLib.Reanim;
 
+var files = Directory.GetFiles("reanim", "*", SearchOption.AllDirectories);
+if (!Directory.Exists(Path.Combine("compiled", "reanim")))
+	Directory.CreateDirectory(Path.Combine("compiled", "reanim"));
+
+foreach (var file in files)
 {
+	if (!file.EndsWith(".reanim"))
+		throw new("FIXME");
 
-	using var compiled = File.OpenRead("Blover.reanim.compiled");
-	var reanim = ReanimBinaryReader.ReadFromStream(compiled);
+	var destFile = Path.Combine("compiled", file + ".compiled");
 
-	using var decompiled = File.OpenWrite("Blover.reanim.decompiled");
-	ReanimXmlWriter.WriteToStream(reanim, decompiled);
-}
+	using var fs = File.OpenRead(file);
+	var reanim = ReanimXmlReader.ReadFromStream(fs);
 
-{
-
-	using var decompiled = File.OpenRead("Blover.reanim.decompiled");
-	var reanim = ReanimXmlReader.ReadFromStream(decompiled);
-
-	using var recompiled = File.OpenWrite("Blover.reanim.recompiled");
-	ReanimBinaryWriter.WriteToStream(reanim, recompiled);
-}
-
-{
-
-	using var compiled = File.OpenRead("Blover.reanim.recompiled");
-	var reanim = ReanimBinaryReader.ReadFromStream(compiled);
-
-	using var decompiled = File.OpenWrite("Blover.reanim.redecompiled");
-	ReanimXmlWriter.WriteToStream(reanim, decompiled);
+	using var fs2 = File.OpenWrite(destFile);
+	ReanimBinaryWriter.WriteToStream(reanim, fs2);
 }
