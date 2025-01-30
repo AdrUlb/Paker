@@ -64,7 +64,6 @@ internal static class Program
 		Console.WriteLine();
 		
 		var endTime = Stopwatch.GetTimestamp();
-		
 		var duration = endTime - startTime;
 		var durationMs = duration * 1000.0 / Stopwatch.Frequency;
 		Console.WriteLine($"Done. ({durationMs:0.000}ms)");
@@ -75,6 +74,8 @@ internal static class Program
 		using var writer = new PakWriter(outputFilePath);
 		var files = Directory.GetFiles(inputDirPath, "*", SearchOption.AllDirectories);
 
+		var startTime = Stopwatch.GetTimestamp();
+
 		foreach (var file in files)
 		{
 			var name = Path.GetRelativePath(inputDirPath, file).Replace('/', '\\');
@@ -82,5 +83,10 @@ internal static class Program
 		}
 
 		writer.Write();
+		
+		var endTime = Stopwatch.GetTimestamp();
+		var duration = endTime - startTime;
+		var durationMs = duration * 1000.0 / Stopwatch.Frequency;
+		Console.WriteLine($"Done. ({durationMs:0.000}ms)");
 	}
 }

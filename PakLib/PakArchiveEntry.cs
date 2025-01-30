@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PakLib;
 
 public class PakArchiveEntry
@@ -19,18 +17,17 @@ public class PakArchiveEntry
 		_offset = offset;
 	}
 
+	public Stream GetStream() => Archive.Stream.Substream(Archive.DataOffset + _offset, Size, true);
+
 	public void ExtractToFile(string fileName)
 	{
 		var fileDirPath = Path.GetDirectoryName(fileName) ?? throw new ArgumentException("Invalid file name.", nameof(fileName));
-		var buffer = new byte[Size];
 
 		if (!Directory.Exists(fileDirPath))
 			Directory.CreateDirectory(fileDirPath);
 
 		using var fs = File.Create(fileName);
 		fs.SetLength(Size);
-		Archive.Stream.Seek(Archive.DataOffset + _offset, SeekOrigin.Begin);
-		Archive.Stream.ReadExactly(buffer);
-		fs.Write(buffer);
+		GetStream().CopyTo(fs);
 	}
 }
