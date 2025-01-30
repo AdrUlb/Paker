@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace PakLib;
+namespace PopLib.Pak;
 
 public class PakWriter : IDisposable, IAsyncDisposable
 {

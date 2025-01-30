@@ -1,4 +1,4 @@
-namespace PakLib;
+namespace PopLib.Pak;
 
 public sealed class PakStream(Stream baseStream) : Stream
 {

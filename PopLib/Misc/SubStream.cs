@@ -1,6 +1,6 @@
-namespace PakLib;
+namespace PopLib.Misc;
 
-internal class Substream : Stream
+internal class SubStream : Stream
 {
 	private readonly Stream _stream;
 	private readonly long _offset;
@@ -29,7 +29,7 @@ internal class Substream : Stream
 
 	public override bool CanSeek => _stream.CanSeek;
 
-	public Substream(Stream stream, long offset, long length, bool forceReadOnly)
+	public SubStream(Stream stream, long offset, long length, bool forceReadOnly)
 	{
 		_stream = stream;
 		_offset = offset;
@@ -112,7 +112,7 @@ internal class Substream : Stream
 
 	public override void SetLength(long value) => throw new NotSupportedException();
 
-	~Substream() => Dispose(false);
+	~SubStream() => Dispose(false);
 
 	protected override void Dispose(bool disposing)
 	{

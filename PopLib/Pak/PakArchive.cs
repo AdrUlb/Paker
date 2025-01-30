@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace PakLib;
+namespace PopLib.Pak;
 
 public class PakArchive : IDisposable, IAsyncDisposable
 {
@@ -15,7 +15,7 @@ public class PakArchive : IDisposable, IAsyncDisposable
 	{
 		Stream = new(File.OpenRead(filePath));
 
-		Span<byte> buf = stackalloc byte[256];
+		Span<byte> buf = stackalloc byte[512];
 		var buf4 = buf[..4];
 		var buf8 = buf[..8];
 		var buf9 = buf[..9];

@@ -7,13 +7,13 @@
 		<Nullable>enable</Nullable>
 		<InvariantGlobalization>true</InvariantGlobalization>
 	</PropertyGroup>
-	
+
 	<PropertyGroup>
 		<PublishAot>true</PublishAot>
 		<OptimizationPreference>Speed</OptimizationPreference>
 		<IlcInstructionSet>avx2,bmi2,fma,pclmul,popcnt,aes</IlcInstructionSet>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 	  <ProjectReference Include="..\PopLib\PopLib.csproj" />
 	</ItemGroup>

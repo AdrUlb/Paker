@@ -1,4 +1,6 @@
-namespace PakLib;
+using PopLib.Misc;
+
+namespace PopLib.Pak;
 
 public class PakArchiveEntry
 {
@@ -17,7 +19,7 @@ public class PakArchiveEntry
 		_offset = offset;
 	}
 
-	public Stream GetStream() => Archive.Stream.Substream(Archive.DataOffset + _offset, Size, true);
+	public Stream GetStream() => Archive.Stream.SubStream(Archive.DataOffset + _offset, Size, true);
 
 	public void ExtractToFile(string fileName)
 	{
