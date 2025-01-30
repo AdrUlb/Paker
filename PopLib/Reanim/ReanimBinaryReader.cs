@@ -8,58 +8,51 @@ public static class ReanimBinaryReader
 {
 	public static ReanimAnimation ReadFromStream(Stream stream)
 	{
-		var magic = stream.ReadUint();
-		if (magic != 0xDEADFED4)
+		if (stream.ReadUint() != 0xDEADFED4)
 			throw new("FIXME");
 
-		// TODO
+		// FIXME
 		stream.ReadUint();
-		
-		using var deflateStream = new ZLibStream(stream, CompressionMode.Decompress);
 
-		if (deflateStream.ReadUint() != 0xB393B4C0)
+		using var zlibStream = new ZLibStream(stream, CompressionMode.Decompress);
+
+		if (zlibStream.ReadUint() != 0xB393B4C0)
 			throw new("FIXME");
 
-		// TODO
-		deflateStream.ReadUint();
+		// FIXME
+		zlibStream.ReadUint();
 
-		var trackCount = deflateStream.ReadUint();
+		var trackCount = zlibStream.ReadInt();
+		var fps = zlibStream.ReadFloat();
 
-		var fps = deflateStream.ReadFloat();
-
-		if (deflateStream.ReadUint() != 0)
+		if (zlibStream.ReadUint() != 0)
 			throw new("FIXME");
 
-		if (deflateStream.ReadUint() != 12)
+		if (zlibStream.ReadUint() != 12)
 			throw new("FIXME");
 
 		var tracks = new ReanimTrack[trackCount];
 
 		for (var i = 0; i < trackCount; i++)
 		{
-			// TODO
-			deflateStream.ReadUint();
-			deflateStream.ReadUint();
+			// FIXME
+			zlibStream.ReadUint();
+			zlibStream.ReadUint();
 
-			var transformCount = deflateStream.ReadUint();
+			var transformCount = zlibStream.ReadInt();
 
 			tracks[i].Transforms = new ReanimTransform[transformCount];
 		}
 
 		for (var trackIndex = 0; trackIndex < tracks.Length; trackIndex++)
-			ParseTrack(ref tracks[trackIndex], deflateStream);
+			ReadTrack(ref tracks[trackIndex], zlibStream);
 
 		return new ReanimAnimation(fps, tracks);
 	}
 
-	private static void ParseTrack(ref ReanimTrack track, Stream stream)
+	private static void ReadTrack(ref ReanimTrack track, Stream stream)
 	{
-		Span<byte> buf = stackalloc byte[512];
-
-		var nameLength = stream.ReadInt();
-
-		stream.ReadExactly(buf[..nameLength]);
-		track.Name = Encoding.UTF8.GetString(buf[..nameLength]);
+		track.Name = stream.ReadString();
 
 		if (stream.ReadInt() != 0x0000002C)
 			throw new("FIXME");
@@ -75,7 +68,7 @@ public static class ReanimBinaryReader
 			track.Transforms[transformIndex].Frame = stream.ReadFloat();
 			track.Transforms[transformIndex].Alpha = stream.ReadFloat();
 
-			// TODO
+			// FIXME
 			stream.ReadUint();
 			stream.ReadUint();
 			stream.ReadUint();
@@ -83,17 +76,9 @@ public static class ReanimBinaryReader
 
 		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
 		{
-			var imageNameLength = stream.ReadInt();
-			stream.ReadExactly(buf[..imageNameLength]);
-			track.Transforms[transformIndex].ImageName = Encoding.UTF8.GetString(buf[..imageNameLength]);
-
-			var fontNameLength = stream.ReadInt();
-			stream.ReadExactly(buf[..fontNameLength]);
-			var fontName = Encoding.UTF8.GetString(buf[..fontNameLength]);
-
-			var textLength = stream.ReadInt();
-			stream.ReadExactly(buf[..textLength]);
-			var text = Encoding.UTF8.GetString(buf[..textLength]);
+			track.Transforms[transformIndex].ImageName = stream.ReadString();
+			var fontName = stream.ReadString();
+			var text = stream.ReadString();
 		}
 	}
 
@@ -116,5 +101,13 @@ public static class ReanimBinaryReader
 		Span<byte> buf = stackalloc byte[4];
 		stream.ReadExactly(buf);
 		return BinaryPrimitives.ReadSingleLittleEndian(buf);
+	}
+
+	private static string ReadString(this Stream stream)
+	{
+		var length = stream.ReadInt();
+		Span<byte> buf = stackalloc byte[length];
+		stream.ReadExactly(buf);
+		return Encoding.UTF8.GetString(buf);
 	}
 }
