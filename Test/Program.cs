@@ -1,6 +1,6 @@
 ﻿using PopLib.Reanim;
 
-var files = Directory.GetFiles("reanim", "*", SearchOption.AllDirectories);
+var files = Directory.GetFiles("reanim", "*.reanim", SearchOption.AllDirectories);
 if (!Directory.Exists(Path.Combine("compiled", "reanim")))
 	Directory.CreateDirectory(Path.Combine("compiled", "reanim"));
 

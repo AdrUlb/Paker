@@ -77,8 +77,8 @@ public static class ReanimBinaryReader
 		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
 		{
 			track.Transforms[transformIndex].ImageName = stream.ReadString();
-			var fontName = stream.ReadString();
-			var text = stream.ReadString();
+			track.Transforms[transformIndex].FontName = stream.ReadString();
+			track.Transforms[transformIndex].Text = stream.ReadString();
 		}
 	}
 

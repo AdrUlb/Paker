@@ -69,8 +69,8 @@ public static class ReanimBinaryWriter
 		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
 		{
 			stream.WriteString(track.Transforms[transformIndex].ImageName ?? "");
-			stream.WriteString("");
-			stream.WriteString("");
+			stream.WriteString(track.Transforms[transformIndex].FontName ?? "");
+			stream.WriteString(track.Transforms[transformIndex].Text ?? "");
 		}
 	}
 

@@ -63,10 +63,10 @@ public static class ReanimXmlWriter
 			builder.Append("<i>").Append(transform.ImageName).Append("</i>");
 
 		if (!string.IsNullOrEmpty(transform.FontName))
-			throw new NotImplementedException();
+			builder.Append("<font>").Append(transform.ImageName).Append("</font>");
 
 		if (!string.IsNullOrEmpty(transform.Text))
-			throw new NotImplementedException();
+			builder.Append("<text>").Append(transform.ImageName).Append("</text>");
 
 		builder.AppendLine("</t>");
 	}
