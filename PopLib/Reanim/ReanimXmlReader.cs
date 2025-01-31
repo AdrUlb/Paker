@@ -8,16 +8,13 @@ public static class ReanimXmlReader
 	public static ReanimAnimation ReadFromStream(Stream stream)
 	{
 		using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
-		var xmlString = streamReader.ReadToEnd();
-		return ReadFromString(xmlString);
+		return ReadFromString(streamReader.ReadToEnd());
 	}
 
-	private static ReanimAnimation ReadFromString(string str)
+	public static ReanimAnimation ReadFromString(string str)
 	{
-		float? fps = null;
-
 		using var stringReader = new StringReader("<root>" + str + "</root>");
-		var settings = new XmlReaderSettings()
+		var settings = new XmlReaderSettings
 		{
 			IgnoreWhitespace = true
 		};
@@ -26,6 +23,7 @@ public static class ReanimXmlReader
 		if (!reader.Read() || reader.NodeType != XmlNodeType.Element || reader.Name != "root")
 			throw new("FIXME");
 
+		float? fps = null;
 		var tracks = new List<ReanimTrack>();
 
 		while (reader.Read())
@@ -61,12 +59,12 @@ public static class ReanimXmlReader
 					throw new InvalidDataException($"Encountered unexpected node of type {reader.NodeType} while parsing reanim animation.");
 			}
 		}
-	end:
+		end:
 
 		if (fps == null)
 			throw new("FIXME");
 
-		return new(fps.Value, [.. tracks]);
+		return new(fps.Value, [..tracks]);
 	}
 
 	private static ReanimTrack ReadTrack(XmlReader reader)
@@ -108,16 +106,12 @@ public static class ReanimXmlReader
 					throw new InvalidDataException($"Encountered unexpected node of type {reader.NodeType} while parsing reanim track.");
 			}
 		}
-	end:
+		end:
 
 		if (name == null)
 			throw new("FIXME");
 
-		return new()
-		{
-			Name = name,
-			Transforms = [.. transforms]
-		};
+		return new(name, [..transforms]);
 	}
 
 	private static ReanimTransform ReadTransform(XmlReader reader)
@@ -178,15 +172,16 @@ public static class ReanimXmlReader
 
 						if (!reader.Read() || reader.NodeType != XmlNodeType.EndElement || reader.Name != propName)
 							throw new($"FIXME");
+
 						break;
 					}
 				default:
 					throw new InvalidDataException($"Encountered unexpected node of type {reader.NodeType} while parsing reanim transform.");
 			}
 		}
-	end:
+		end:
 
-		return new ReanimTransform()
+		return new()
 		{
 			X = x,
 			Y = y,

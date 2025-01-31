@@ -4,7 +4,7 @@ namespace PopLib.Reanim;
 
 public static class ReanimXmlWriter
 {
-	public static void WriteToStream(in ReanimAnimation animation, Stream stream)
+	public static void WriteToStream(ReanimAnimation animation, Stream stream)
 	{
 		using var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: true);
 
@@ -13,7 +13,7 @@ public static class ReanimXmlWriter
 		writer.Write(builder.ToString());
 	}
 
-	public static void WriteToStringBuilder(in ReanimAnimation animation, StringBuilder builder)
+	public static void WriteToStringBuilder(ReanimAnimation animation, StringBuilder builder)
 	{
 		builder.Append("<fps>").Append(animation.Fps).AppendLine("</fps>");
 
@@ -21,7 +21,7 @@ public static class ReanimXmlWriter
 			WriteTrack(animation.Tracks[i], builder);
 	}
 
-	private static void WriteTrack(in ReanimTrack track, StringBuilder builder)
+	private static void WriteTrack(ReanimTrack track, StringBuilder builder)
 	{
 		builder.AppendLine("<track>").Append("<name>").Append(track.Name).AppendLine("</name>");
 
@@ -31,7 +31,7 @@ public static class ReanimXmlWriter
 		builder.AppendLine("</track>");
 	}
 
-	private static void WriteTransform(in ReanimTransform transform, StringBuilder builder)
+	private static void WriteTransform(ReanimTransform transform, StringBuilder builder)
 	{
 		builder.Append("<t>");
 

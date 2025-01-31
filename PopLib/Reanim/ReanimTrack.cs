@@ -1,7 +1,7 @@
 ﻿namespace PopLib.Reanim;
 
-public struct ReanimTrack
+public readonly struct ReanimTrack(string name, ReanimTransform[] transforms)
 {
-	public string Name;
-	public ReanimTransform[] Transforms;
+	public readonly string Name = name;
+	public readonly ReanimTransform[] Transforms = transforms;
 }

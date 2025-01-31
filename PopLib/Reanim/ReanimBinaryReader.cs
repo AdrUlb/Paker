@@ -1,6 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using PopLib.Misc;
 using System.IO.Compression;
-using System.Text;
 
 namespace PopLib.Reanim;
 
@@ -8,65 +7,61 @@ public static class ReanimBinaryReader
 {
 	public static ReanimAnimation ReadFromStream(Stream stream)
 	{
-		if (stream.ReadUint() != 0xDEADFED4)
+		using var ms = new MemoryStream();
+		AssetCompression.Decompress(stream, ms);
+		ms.Position = 0;
+
+		if (ms.ReadUint() != 0xB393B4C0)
 			throw new("FIXME");
 
 		// FIXME
-		stream.ReadUint();
+		ms.ReadUint();
 
-		using var zlibStream = new ZLibStream(stream, CompressionMode.Decompress);
+		var trackCount = ms.ReadInt();
+		var fps = ms.ReadFloat();
 
-		if (zlibStream.ReadUint() != 0xB393B4C0)
+		if (ms.ReadUint() != 0)
 			throw new("FIXME");
 
-		// FIXME
-		zlibStream.ReadUint();
-
-		var trackCount = zlibStream.ReadInt();
-		var fps = zlibStream.ReadFloat();
-
-		if (zlibStream.ReadUint() != 0)
-			throw new("FIXME");
-
-		if (zlibStream.ReadUint() != 12)
+		if (ms.ReadUint() != 12)
 			throw new("FIXME");
 
 		var tracks = new ReanimTrack[trackCount];
+		Span<int> transformCounts = stackalloc int[trackCount];
 
 		for (var i = 0; i < trackCount; i++)
 		{
 			// FIXME
-			zlibStream.ReadUint();
-			zlibStream.ReadUint();
+			ms.ReadUint();
+			ms.ReadUint();
 
-			var transformCount = zlibStream.ReadInt();
-
-			tracks[i].Transforms = new ReanimTransform[transformCount];
+			transformCounts[i] = ms.ReadInt();
 		}
 
-		for (var trackIndex = 0; trackIndex < tracks.Length; trackIndex++)
-			ReadTrack(ref tracks[trackIndex], zlibStream);
+		for (var i = 0; i < tracks.Length; i++)
+			tracks[i] = ReadTrack(transformCounts[i], ms);
 
-		return new ReanimAnimation(fps, tracks);
+		return new(fps, tracks);
 	}
 
-	private static void ReadTrack(ref ReanimTrack track, Stream stream)
+	private static ReanimTrack ReadTrack(int transformCount, Stream stream)
 	{
-		track.Name = stream.ReadString();
+		var name = stream.ReadString();
+		var transforms = new ReanimTransform[transformCount];
 
 		if (stream.ReadInt() != 0x0000002C)
 			throw new("FIXME");
 
-		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
+		for (var i = 0; i < transforms.Length; i++)
 		{
-			track.Transforms[transformIndex].X = stream.ReadFloat();
-			track.Transforms[transformIndex].Y = stream.ReadFloat();
-			track.Transforms[transformIndex].SkewX = stream.ReadFloat();
-			track.Transforms[transformIndex].SkewY = stream.ReadFloat();
-			track.Transforms[transformIndex].ScaleX = stream.ReadFloat();
-			track.Transforms[transformIndex].ScaleY = stream.ReadFloat();
-			track.Transforms[transformIndex].Frame = stream.ReadFloat();
-			track.Transforms[transformIndex].Alpha = stream.ReadFloat();
+			transforms[i].X = stream.ReadFloat();
+			transforms[i].Y = stream.ReadFloat();
+			transforms[i].SkewX = stream.ReadFloat();
+			transforms[i].SkewY = stream.ReadFloat();
+			transforms[i].ScaleX = stream.ReadFloat();
+			transforms[i].ScaleY = stream.ReadFloat();
+			transforms[i].Frame = stream.ReadFloat();
+			transforms[i].Alpha = stream.ReadFloat();
 
 			// FIXME
 			stream.ReadUint();
@@ -74,40 +69,13 @@ public static class ReanimBinaryReader
 			stream.ReadUint();
 		}
 
-		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
+		for (var i = 0; i < transforms.Length; i++)
 		{
-			track.Transforms[transformIndex].ImageName = stream.ReadString();
-			track.Transforms[transformIndex].FontName = stream.ReadString();
-			track.Transforms[transformIndex].Text = stream.ReadString();
+			transforms[i].ImageName = stream.ReadString();
+			transforms[i].FontName = stream.ReadString();
+			transforms[i].Text = stream.ReadString();
 		}
-	}
 
-	private static int ReadInt(this Stream stream)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		stream.ReadExactly(buf);
-		return BinaryPrimitives.ReadInt32LittleEndian(buf);
-	}
-
-	private static uint ReadUint(this Stream stream)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		stream.ReadExactly(buf);
-		return BinaryPrimitives.ReadUInt32LittleEndian(buf);
-	}
-
-	private static float ReadFloat(this Stream stream)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		stream.ReadExactly(buf);
-		return BinaryPrimitives.ReadSingleLittleEndian(buf);
-	}
-
-	private static string ReadString(this Stream stream)
-	{
-		var length = stream.ReadInt();
-		Span<byte> buf = stackalloc byte[length];
-		stream.ReadExactly(buf);
-		return Encoding.UTF8.GetString(buf);
+		return new(name, transforms);
 	}
 }

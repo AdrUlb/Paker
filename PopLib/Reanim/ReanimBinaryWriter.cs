@@ -1,17 +1,14 @@
-﻿using System.Buffers.Binary;
+﻿using PopLib.Misc;
 using System.IO.Compression;
-using System.Text;
 
 namespace PopLib.Reanim;
 
 public static class ReanimBinaryWriter
 {
-
-	public static void WriteToStream(in ReanimAnimation animation, Stream stream)
+	public static void WriteToStream(ReanimAnimation animation, Stream stream)
 	{
 		using var ms = new MemoryStream();
 
-		//
 		ms.WriteUint(0xB393B4C0);
 
 		// FIXME
@@ -34,16 +31,15 @@ public static class ReanimBinaryWriter
 			ms.WriteInt(track.Transforms.Length);
 		}
 
-		for (var i = 0; i < animation.Tracks.Length; i++)
-			WriteTrack(animation.Tracks[i], ms);
+		foreach (var track in animation.Tracks)
+			WriteTrack(track, ms);
 
-		stream.WriteUint(0xDEADFED4);
-		stream.WriteUint((uint)ms.Length);
-		using var zlibStream = new ZLibStream(stream, CompressionMode.Compress);
-		ms.WriteTo(zlibStream);
+		ms.Position = 0;
+		
+		AssetCompression.Compress(ms, stream);
 	}
 
-	private static void WriteTrack(in ReanimTrack track, Stream stream)
+	private static void WriteTrack(ReanimTrack track, Stream stream)
 	{
 		stream.WriteString(track.Name);
 
@@ -72,34 +68,5 @@ public static class ReanimBinaryWriter
 			stream.WriteString(track.Transforms[transformIndex].FontName ?? "");
 			stream.WriteString(track.Transforms[transformIndex].Text ?? "");
 		}
-	}
-
-	private static void WriteUint(this Stream stream, uint value)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		BinaryPrimitives.WriteUInt32LittleEndian(buf, value);
-		stream.Write(buf);
-	}
-
-	private static void WriteInt(this Stream stream, int value)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		BinaryPrimitives.WriteInt32LittleEndian(buf, value);
-		stream.Write(buf);
-	}
-
-	private static void WriteFloat(this Stream stream, float value)
-	{
-		Span<byte> buf = stackalloc byte[4];
-		BinaryPrimitives.WriteSingleLittleEndian(buf, value);
-		stream.Write(buf);
-	}
-
-	private static void WriteString(this Stream stream, string str)
-	{
-		stream.WriteInt(str.Length);
-		Span<byte> buf = stackalloc byte[str.Length];
-		Encoding.UTF8.GetBytes(str, buf);
-		stream.Write(buf);
 	}
 }
