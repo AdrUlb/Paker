@@ -58,6 +58,7 @@ public static class ParticlesXmlReader
 		var emitter = new ParticlesEmitter();
 
 		var fields = new List<ParticlesField>();
+		var systemFields = new List<ParticlesField>();
 
 		while (reader.Read())
 		{
@@ -71,25 +72,40 @@ public static class ParticlesXmlReader
 				case XmlNodeType.Element:
 					switch (reader.Name)
 					{
+						case "ImageCol": emitter.ImageCol = ReadIntParameter(reader, reader.Name); break;
+						case "ImageRow": emitter.ImageRow = ReadIntParameter(reader, reader.Name); break;
 						case "ImageFrames": emitter.ImageFrames = ReadIntParameter(reader, reader.Name); break;
+						case "Animated": emitter.Animated = ReadIntParameter(reader, reader.Name); break;
 						case "RandomLaunchSpin": emitter.RandomLaunchSpin = ReadBoolParameter(reader, reader.Name); break;
+						case "AlignLaunchSpin": emitter.AlignLaunchSpin = ReadBoolParameter(reader, reader.Name); break;
 						case "SystemLoops": emitter.SystemLoops = ReadBoolParameter(reader, reader.Name); break;
 						case "ParticleLoops": emitter.ParticleLoops = ReadBoolParameter(reader, reader.Name); break;
+						case "ParticlesDontFollow": emitter.ParticlesDontFollow = ReadBoolParameter(reader, reader.Name); break;
 						case "RandomStartTime": emitter.RandomStartTime = ReadBoolParameter(reader, reader.Name); break;
+						case "DieIfOverloaded": emitter.DieIfOverloaded = ReadBoolParameter(reader, reader.Name); break;
 						case "Additive": emitter.Additive = ReadBoolParameter(reader, reader.Name); break;
+						case "FullScreen": emitter.FullScreen = ReadBoolParameter(reader, reader.Name); break;
 						case "HardwareOnly": emitter.HardwareOnly = ReadBoolParameter(reader, reader.Name); break;
 						case "EmitterType": emitter.EmitterType = ReadEnumParameter<ParticlesEmitterType>(reader, reader.Name); break;
-						case "Field": fields.Add(ReadField(reader)); break;
-						case "Image": emitter.Image = ReadStringParameter(reader, reader.Name); break;
+						case "Field": fields.Add(ReadField(reader, reader.Name)); break;
+						case "SystemField": systemFields.Add(ReadField(reader, reader.Name)); break;
+						case "Image": emitter.Image = ReadStringParameter(reader, reader.Name).ToUpper(); break;
 						case "Name": emitter.Name = ReadStringParameter(reader, reader.Name); break;
 						case "SystemDuration": emitter.SystemDuration = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "CrossFadeDuration": emitter.CrossFadeDuration = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "SpawnRate": emitter.SpawnRate = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "SpawnMinActive": emitter.SpawnMinActive = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "SpawnMaxActive": emitter.SpawnMaxActive = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "SpawnMaxLaunched": emitter.SpawnMaxLaunched = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "EmitterRadius": emitter.EmitterRadius = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "EmitterOffsetX": emitter.EmitterOffsetX = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "EmitterOffsetY": emitter.EmitterOffsetY = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "EmitterBoxX": emitter.EmitterBoxX = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "EmitterBoxY": emitter.EmitterBoxY = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "EmitterSkewX": emitter.EmitterSkewX = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "EmitterSkewY": emitter.EmitterSkewY = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "ParticleDuration": emitter.ParticleDuration = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "SystemAlpha": emitter.SystemAlpha = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "LaunchSpeed": emitter.LaunchSpeed = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "LaunchAngle": emitter.LaunchAngle = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "ParticleRed": emitter.ParticleRed = ReadFloatParameterTrack(reader, reader.Name); break;
@@ -100,6 +116,14 @@ public static class ParticlesXmlReader
 						case "ParticleSpinAngle": emitter.ParticleSpinAngle = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "ParticleSpinSpeed": emitter.ParticleSpinSpeed = ReadFloatParameterTrack(reader, reader.Name); break;
 						case "ParticleScale": emitter.ParticleScale = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "ParticleStretch": emitter.ParticleStretch = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "CollisionReflect": emitter.CollisionReflect = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "CollisionSpin": emitter.CollisionSpin = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "ClipTop": emitter.ClipTop = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "ClipBottom": emitter.ClipBottom = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "ClipLeft": emitter.ClipLeft = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "ClipRight": emitter.ClipRight = ReadFloatParameterTrack(reader, reader.Name); break;
+						case "AnimationRate": emitter.AnimationRate = ReadFloatParameterTrack(reader, reader.Name); break;
 						default:
 							throw new NotSupportedException($"Particles Emitter tag '{reader.Name}' not supported.");
 					}
@@ -112,6 +136,9 @@ public static class ParticlesXmlReader
 
 		if (fields.Count > 0)
 			emitter.Fields = [..fields];
+
+		if (systemFields.Count > 0)
+			emitter.SystemFields = [..systemFields];
 
 		return emitter;
 	}
@@ -157,7 +184,7 @@ public static class ParticlesXmlReader
 		return ret;
 	}
 
-	private static ParticlesField ReadField(XmlReader reader)
+	private static ParticlesField ReadField(XmlReader reader, string name)
 	{
 		var field = new ParticlesField();
 
@@ -166,7 +193,7 @@ public static class ParticlesXmlReader
 			switch (reader.NodeType)
 			{
 				case XmlNodeType.EndElement:
-					if (reader.Name != "Field")
+					if (reader.Name != name)
 						throw new("FIXME");
 
 					goto end;
@@ -226,26 +253,23 @@ public static class ParticlesXmlReader
 					{
 						i++;
 						highValue = lowValue;
-						distribution = ParticlesCurveType.Constant; // Not a distribution, constant.
+						distribution = ParticlesCurveType.Constant;
 					}
 					else
 					{
+						if (str[i] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'))
+						{
+							if (!Enum.TryParse(ReadString(), out distribution))
+								throw new("FIXME");
+
+							SkipWhitespace();
+						}
+
 						highValue = ReadFloat();
 						SkipWhitespace();
 
 						if (str[i++] != ']')
 							throw new("FIXME");
-
-						var savedI = i;
-						SkipWhitespace();
-
-						if (i < str.Length && str[i] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'))
-						{
-							if (!Enum.TryParse(ReadString(), out distribution))
-								throw new("FIXME");
-						}
-						else
-							i = savedI;
 					}
 				}
 				else // Scalar
@@ -258,10 +282,11 @@ public static class ParticlesXmlReader
 					i++;
 					time = ReadFloat() / 100.0f;
 				}
-				
+
 				SkipWhitespace();
+
 				// Curve type
-				if (str[i] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'))
+				if (i < str.Length && str[i] is (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'))
 				{
 					if (!Enum.TryParse(ReadString(), out curveType))
 						throw new("FIXME");
@@ -283,7 +308,19 @@ public static class ParticlesXmlReader
 				while (i < str.Length && str[i] is (>= '0' and <= '9') or '.' or '-')
 					i++;
 
-				return float.Parse(str[start..i]);
+				var str2 = str[start..i];
+
+				var sepIndex = str2.IndexOf('.');
+
+				if (sepIndex != -1)
+				{
+					var sepIndex2 = str2[(sepIndex + 1)..].IndexOf('.');
+
+					if (sepIndex2 != -1)
+						str2 = str2[..(sepIndex + 1 + sepIndex2)];
+				}
+
+				return float.Parse(str2);
 			}
 
 			string ReadString()
@@ -328,13 +365,15 @@ public static class ParticlesXmlReader
 					var absoluteDelta = nodes[j].Time - nodes[i].Time;
 
 					// The number of undefined steps
-					delta = absoluteDelta / (j - i);
+					delta = last + absoluteDelta / (j - i);
 				}
 
+				last = nodes[i].Time;
 				continue;
 			}
 
 			nodes[i].Time = last + delta;
+			last = nodes[i].Time;
 		}
 
 		return new([..nodes]);

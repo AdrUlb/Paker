@@ -15,7 +15,7 @@ using PopLib.Reanim;
 		var destFile = Path.Combine("compiled", file + ".compiled");
 
 		using var inputStream = File.OpenRead(file);
-		using var outputStream = File.OpenWrite(destFile);
+		using var outputStream = File.Create(destFile);
 		ReanimBinaryWriter.WriteToStream(ReanimXmlReader.ReadFromStream(inputStream), outputStream);
 	}
 }
@@ -26,36 +26,36 @@ using PopLib.Reanim;
 	var filesCompiled = Directory.GetFiles("particles_compiled", "*.xml.compiled", SearchOption.AllDirectories);
 	//ReadOnlySpan<string> filesXml = ["particles_xml/PotatoMine.xml"];
 	//ReadOnlySpan<string> filesCompiled = ["particles_compiled/PotatoMine.xml.compiled"];
-	if (!Directory.Exists("generated"))
-		Directory.CreateDirectory("generated");
-	if (!Directory.Exists("generated"))
-		Directory.CreateDirectory("generated");
+	if (!Directory.Exists("generated/a"))
+		Directory.CreateDirectory("generated/a");
+	if (!Directory.Exists("generated/b"))
+		Directory.CreateDirectory("generated/b");
 	
 	foreach (var file in filesCompiled)
 	{
-		var destFile = Path.Combine("generated", file[19..^9] + ".gen1");
+		var destFile = Path.Combine("generated", "a", file[19..^9]).ToLower();
 
 		Console.WriteLine(file);
 
 		using var inputStream = File.OpenRead(file);
-		using var outputStream = File.OpenWrite(destFile);
+		using var outputStream = File.Create(destFile);
 		ParticlesXmlWriter.WriteToStream(ParticlesBinaryReader.ReadFromStream(inputStream), outputStream);
 	}
 	
 	foreach (var file in filesXml)
 	{
-		var destFile = Path.Combine("generated", file[14..] + ".gen2");
+		var destFile = Path.Combine("generated", "b", file[14..]).ToLower();
 
 		Console.WriteLine(file);
 
 		using var inputStream = File.OpenRead(file);
-		using var outputStream = File.OpenWrite(destFile);
+		using var outputStream = File.Create(destFile);
 		ParticlesXmlWriter.WriteToStream(ParticlesXmlReader.ReadFromStream(inputStream), outputStream);
 	}
 }
 
 /*
 using var inputStream = File.OpenRead("particles_xml/LanternShine.xml");
-using var outputStream = File.OpenWrite("LanternShine.xml2");
+using var outputStream = File.Create("LanternShine.xml2");
 ParticlesXmlWriter.WriteToStream(ParticlesXmlReader.ReadFromStream(inputStream), outputStream);
 */

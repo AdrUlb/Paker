@@ -19,7 +19,7 @@ public class PakWriter : IDisposable, IAsyncDisposable
 
 	public PakWriter(string filePath)
 	{
-		_stream = new(File.OpenWrite(filePath));
+		_stream = new(File.Create(filePath));
 		WriteHeader();
 	}
 

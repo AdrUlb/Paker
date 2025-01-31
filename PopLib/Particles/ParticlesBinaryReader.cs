@@ -31,44 +31,40 @@ public static class ParticlesBinaryReader
 			// FIXME
 			ms.Position += 4;
 
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
+			emitter.ImageCol = ms.ReadInt();
+			emitter.ImageRow = ms.ReadInt();
 			emitter.ImageFrames = ms.ReadInt();
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
+			emitter.Animated = ms.ReadInt();
 			var particleFlags = ms.ReadUint();
-
 			emitter.EmitterType = (ParticlesEmitterType)ms.ReadInt();
 
 			// FIXME
 			ms.Position += 47 * 4;
 
-			var emitterFieldCount = ms.ReadInt();
-			if (emitterFieldCount > 0)
-				emitter.Fields = new ParticlesField[emitterFieldCount];
+			var fieldCount = ms.ReadInt();
+			if (fieldCount > 0)
+				emitter.Fields = new ParticlesField[fieldCount];
 
 			ms.Position += 4;
 
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
+			var systemFieldCount = ms.ReadInt();
+			if (systemFieldCount > 0)
+				emitter.SystemFields = new ParticlesField[systemFieldCount];
 
 			ms.Position += 32 * 4;
 
-			if ((particleFlags & ~0b100101111001) != 0)
+			if ((particleFlags & ~0b101111111011) != 0)
 				throw new($"FIXME: {Convert.ToString(particleFlags, 2)}");
 
 			emitter.RandomLaunchSpin = (particleFlags & 1) != 0;
+			emitter.AlignLaunchSpin = ((particleFlags >> 1) & 1) != 0;
 			emitter.SystemLoops = ((particleFlags >> 3) & 1) != 0;
 			emitter.ParticleLoops = ((particleFlags >> 4) & 1) != 0;
 			emitter.ParticlesDontFollow = ((particleFlags >> 5) & 1) != 0;
 			emitter.RandomStartTime = ((particleFlags >> 6) & 1) != 0;
+			emitter.DieIfOverloaded = ((particleFlags >> 7) & 1) != 0;
 			emitter.Additive = ((particleFlags >> 8) & 1) != 0;
+			emitter.FullScreen = ((particleFlags >> 9) & 1) != 0;
 			emitter.HardwareOnly = ((particleFlags >> 11) & 1) != 0;
 		}
 
@@ -83,13 +79,10 @@ public static class ParticlesBinaryReader
 			if (ms.ReadUint() != 0)
 				throw new("FIXME");
 
-			emitter.CrossfadeDuration = ms.ReadFloatParameterTrack();
+			emitter.CrossFadeDuration = ms.ReadFloatParameterTrack();
 			emitter.SpawnRate = ms.ReadFloatParameterTrack();
 			emitter.SpawnMinActive = ms.ReadFloatParameterTrack();
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
+			emitter.SpawnMaxActive = ms.ReadFloatParameterTrack();
 			emitter.SpawnMaxLaunched = ms.ReadFloatParameterTrack();
 			emitter.EmitterRadius = ms.ReadFloatParameterTrack();
 			emitter.EmitterOffsetX = ms.ReadFloatParameterTrack();
@@ -100,12 +93,8 @@ public static class ParticlesBinaryReader
 			if (ms.ReadUint() != 0)
 				throw new("FIXME");
 
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
+			emitter.EmitterSkewX = ms.ReadFloatParameterTrack();
+			emitter.EmitterSkewY = ms.ReadFloatParameterTrack();
 			emitter.ParticleDuration = ms.ReadFloatParameterTrack();
 
 			if (ms.ReadUint() != 0)
@@ -117,8 +106,7 @@ public static class ParticlesBinaryReader
 			if (ms.ReadUint() != 0)
 				throw new("FIXME");
 
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
+			emitter.SystemAlpha = ms.ReadFloatParameterTrack();
 
 			if (ms.ReadUint() != 0)
 				throw new("FIXME");
@@ -127,43 +115,24 @@ public static class ParticlesBinaryReader
 			emitter.LaunchAngle = ms.ReadFloatParameterTrack();
 
 			ms.ReadFields(emitter.Fields);
-
-			if (ms.ReadUint() != 20)
-				throw new("FIXME");
+			ms.ReadFields(emitter.SystemFields);
 
 			emitter.ParticleRed = ms.ReadFloatParameterTrack();
 			emitter.ParticleGreen = ms.ReadFloatParameterTrack();
 			emitter.ParticleBlue = ms.ReadFloatParameterTrack();
-
 			emitter.ParticleAlpha = ms.ReadFloatParameterTrack();
 			emitter.ParticleBrightness = ms.ReadFloatParameterTrack();
 			emitter.ParticleSpinAngle = ms.ReadFloatParameterTrack();
 			emitter.ParticleSpinSpeed = ms.ReadFloatParameterTrack();
 			emitter.ParticleScale = ms.ReadFloatParameterTrack();
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
-
-			if (ms.ReadUint() != 0)
-				throw new("FIXME");
+			emitter.ParticleStretch = ms.ReadFloatParameterTrack();
+			emitter.CollisionReflect = ms.ReadFloatParameterTrack();
+			emitter.CollisionSpin = ms.ReadFloatParameterTrack();;
+			emitter.ClipTop = ms.ReadFloatParameterTrack();
+			emitter.ClipBottom = ms.ReadFloatParameterTrack();
+			emitter.ClipLeft = ms.ReadFloatParameterTrack();
+			emitter.ClipRight = ms.ReadFloatParameterTrack();
+			emitter.AnimationRate = ms.ReadFloatParameterTrack();
 		}
 
 		return new(emitters);

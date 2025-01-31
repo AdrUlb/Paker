@@ -24,16 +24,20 @@ public static class ParticlesXmlWriter
 	private static string WriteEmitter(ParticlesEmitter emitter, StringBuilder builder)
 	{
 		var systemDuration = emitter.SystemDuration?.ToXmlString();
-		var crossfadeDuration = emitter.CrossfadeDuration?.ToXmlString();
+		var crossFadeDuration = emitter.CrossFadeDuration?.ToXmlString();
 		var spawnRate = emitter.SpawnRate?.ToXmlString();
 		var spawnMinActive = emitter.SpawnMinActive?.ToXmlString();
+		var spawnMaxActive = emitter.SpawnMaxActive?.ToXmlString();
 		var spawnMaxLaunched = emitter.SpawnMaxLaunched?.ToXmlString();
 		var emitterRadius = emitter.EmitterRadius?.ToXmlString();
 		var emitterOffsetX = emitter.EmitterOffsetX?.ToXmlString();
 		var emitterOffsetY = emitter.EmitterOffsetY?.ToXmlString();
 		var emitterBoxX = emitter.EmitterBoxX?.ToXmlString();
 		var emitterBoxY = emitter.EmitterBoxY?.ToXmlString();
+		var emitterSkewX = emitter.EmitterSkewX?.ToXmlString();
+		var emitterSkewY = emitter.EmitterSkewY?.ToXmlString();
 		var particleDuration = emitter.ParticleDuration?.ToXmlString();
+		var systemAlpha = emitter.SystemAlpha?.ToXmlString();
 		var launchSpeed = emitter.LaunchSpeed?.ToXmlString();
 		var launchAngle = emitter.LaunchAngle?.ToXmlString();
 		var particleRed = emitter.ParticleRed?.ToXmlString();
@@ -44,14 +48,34 @@ public static class ParticlesXmlWriter
 		var particleSpinAngle = emitter.ParticleSpinAngle?.ToXmlString();
 		var particleSpinSpeed = emitter.ParticleSpinSpeed?.ToXmlString();
 		var particleScale = emitter.ParticleScale?.ToXmlString();
+		var particleStretch = emitter.ParticleStretch?.ToXmlString();
+		var collisionReflect = emitter.CollisionReflect?.ToXmlString();
+		var collisionSpin = emitter.CollisionSpin?.ToXmlString();
+		var clipTop = emitter.ClipTop?.ToXmlString();
+		var clipBottom = emitter.ClipBottom?.ToXmlString();
+		var clipLeft = emitter.ClipLeft?.ToXmlString();
+		var clipRight = emitter.ClipRight?.ToXmlString();
+		var animationRate = emitter.AnimationRate?.ToXmlString();
 
 		builder.AppendLine("<Emitter>");
+
+		if (emitter.ImageCol != ParticlesEmitter.DefaultImageCol)
+			builder.Append("  <ImageCol>").Append(emitter.ImageCol).AppendLine("</ImageCol>");
+
+		if (emitter.ImageRow != ParticlesEmitter.DefaultImageRow)
+			builder.Append("  <ImageRow>").Append(emitter.ImageRow).AppendLine("</ImageRow>");
 
 		if (emitter.ImageFrames != ParticlesEmitter.DefaultImageFrames)
 			builder.Append("  <ImageFrames>").Append(emitter.ImageFrames).AppendLine("</ImageFrames>");
 
+		if (emitter.Animated != ParticlesEmitter.DefaultAnimated)
+			builder.Append("  <Animated>").Append(emitter.Animated).AppendLine("</Animated>");
+
 		if (emitter.RandomLaunchSpin)
 			builder.AppendLine("  <RandomLaunchSpin>1</RandomLaunchSpin>");
+
+		if (emitter.AlignLaunchSpin)
+			builder.AppendLine("  <AlignLaunchSpin>1</AlignLaunchSpin>");
 
 		if (emitter.SystemLoops)
 			builder.AppendLine("  <SystemLoops>1</SystemLoops>");
@@ -59,11 +83,20 @@ public static class ParticlesXmlWriter
 		if (emitter.ParticleLoops)
 			builder.AppendLine("  <ParticleLoops>1</ParticleLoops>");
 
+		if (emitter.ParticlesDontFollow)
+			builder.AppendLine("  <ParticlesDontFollow>1</ParticlesDontFollow>");
+
 		if (emitter.RandomStartTime)
 			builder.AppendLine("  <RandomStartTime>1</RandomStartTime>");
 
+		if (emitter.DieIfOverloaded)
+			builder.AppendLine("  <DieIfOverloaded>1</DieIfOverloaded>");
+
 		if (emitter.Additive)
 			builder.AppendLine("  <Additive>1</Additive>");
+
+		if (emitter.FullScreen)
+			builder.AppendLine("  <FullScreen>1</FullScreen>");
 
 		if (emitter.HardwareOnly)
 			builder.AppendLine("  <HardwareOnly>1</HardwareOnly>");
@@ -89,6 +122,24 @@ public static class ParticlesXmlWriter
 			}
 		}
 
+		if (emitter.SystemFields != null)
+		{
+			foreach (var field in emitter.SystemFields)
+			{
+				var x = field.X?.ToXmlString();
+				var y = field.Y?.ToXmlString();
+				builder.AppendLine("  <SystemField>");
+				builder.Append("    <FieldType>").Append(field.FieldType).AppendLine("</FieldType>");
+
+				if (!string.IsNullOrWhiteSpace(x))
+					builder.Append("    <X>").Append(x).AppendLine("</X>");
+
+				if (!string.IsNullOrWhiteSpace(y))
+					builder.Append("    <Y>").Append(y).AppendLine("</Y>");
+				builder.AppendLine("  </SystemField>");
+			}
+		}
+
 		if (!string.IsNullOrEmpty(emitter.Image))
 			builder.Append("  <Image>").Append(emitter.Image).AppendLine("</Image>");
 
@@ -98,14 +149,17 @@ public static class ParticlesXmlWriter
 		if (!string.IsNullOrEmpty(systemDuration))
 			builder.Append("  <SystemDuration>").Append(systemDuration).AppendLine("</SystemDuration>");
 
-		if (!string.IsNullOrEmpty(crossfadeDuration))
-			builder.Append("  <CrossfadeDuration>").Append(crossfadeDuration).AppendLine("</CrossfadeDuration>");
+		if (!string.IsNullOrEmpty(crossFadeDuration))
+			builder.Append("  <CrossFadeDuration>").Append(crossFadeDuration).AppendLine("</CrossFadeDuration>");
 
 		if (!string.IsNullOrEmpty(spawnRate))
 			builder.Append("  <SpawnRate>").Append(spawnRate).AppendLine("</SpawnRate>");
 
 		if (!string.IsNullOrEmpty(spawnMinActive))
 			builder.Append("  <SpawnMinActive>").Append(spawnMinActive).AppendLine("</SpawnMinActive>");
+
+		if (!string.IsNullOrEmpty(spawnMaxActive))
+			builder.Append("  <SpawnMaxActive>").Append(spawnMaxActive).AppendLine("</SpawnMaxActive>");
 
 		if (!string.IsNullOrEmpty(spawnMaxLaunched))
 			builder.Append("  <SpawnMaxLaunched>").Append(spawnMaxLaunched).AppendLine("</SpawnMaxLaunched>");
@@ -125,8 +179,17 @@ public static class ParticlesXmlWriter
 		if (!string.IsNullOrEmpty(emitterBoxY))
 			builder.Append("  <EmitterBoxY>").Append(emitterBoxY).AppendLine("</EmitterBoxY>");
 
+		if (!string.IsNullOrEmpty(emitterSkewX))
+			builder.Append("  <EmitterSkewX>").Append(emitterSkewX).AppendLine("</EmitterSkewX>");
+
+		if (!string.IsNullOrEmpty(emitterSkewY))
+			builder.Append("  <EmitterSkewY>").Append(emitterSkewY).AppendLine("</EmitterSkewY>");
+
 		if (!string.IsNullOrEmpty(particleDuration))
 			builder.Append("  <ParticleDuration>").Append(particleDuration).AppendLine("</ParticleDuration>");
+
+		if (!string.IsNullOrEmpty(systemAlpha))
+			builder.Append("  <SystemAlpha>").Append(systemAlpha).AppendLine("</SystemAlpha>");
 
 		if (!string.IsNullOrEmpty(launchSpeed))
 			builder.Append("  <LaunchSpeed>").Append(launchSpeed).AppendLine("</LaunchSpeed>");
@@ -158,6 +221,30 @@ public static class ParticlesXmlWriter
 		if (!string.IsNullOrEmpty(particleScale))
 			builder.Append("  <ParticleScale>").Append(particleScale).AppendLine("</ParticleScale>");
 
+		if (!string.IsNullOrEmpty(particleStretch))
+			builder.Append("  <ParticleStretch>").Append(particleStretch).AppendLine("</ParticleStretch>");
+
+		if (!string.IsNullOrEmpty(collisionReflect))
+			builder.Append("  <CollisionReflect>").Append(collisionReflect).AppendLine("</CollisionReflect>");
+
+		if (!string.IsNullOrEmpty(collisionSpin))
+			builder.Append("  <CollisionSpin>").Append(collisionSpin).AppendLine("</CollisionSpin>");
+
+		if (!string.IsNullOrEmpty(clipTop))
+			builder.Append("  <ClipTop>").Append(clipTop).AppendLine("</ClipTop>");
+
+		if (!string.IsNullOrEmpty(clipBottom))
+			builder.Append("  <ClipBottom>").Append(clipBottom).AppendLine("</ClipBottom>");
+
+		if (!string.IsNullOrEmpty(clipLeft))
+			builder.Append("  <ClipLeft>").Append(clipLeft).AppendLine("</ClipLeft>");
+
+		if (!string.IsNullOrEmpty(clipRight))
+			builder.Append("  <ClipRight>").Append(clipRight).AppendLine("</ClipRight>");
+
+		if (!string.IsNullOrEmpty(animationRate))
+			builder.Append("  <AnimationRate>").Append(animationRate).AppendLine("</AnimationRate>");
+
 		builder.AppendLine("</Emitter>");
 		return builder.ToString();
 	}
@@ -182,17 +269,19 @@ public static class ParticlesXmlWriter
 				throw new UnreachableException();
 
 			var value = node.LowValue;
-			sb.Append('[').Append(value.ToString("0.##")).Append(']');
+			sb.Append('[').Append(FormatValue(value)).Append(']');
 		}
 		else if (node.LowValue != node.HighValue) // Distribution
 		{
 			if (node.CurveType != ParticlesCurveType.Linear)
 				throw new("FIXME");
 
-			sb.Append('[').Append(FormatValue(node.LowValue)).Append(' ').Append(FormatValue(node.HighValue)).Append(']');
+			sb.Append('[').Append(FormatValue(node.LowValue));
 
 			if (node.Distribution != ParticlesCurveType.Linear)
 				sb.Append(' ').Append(node.Distribution);
+
+			sb.Append(' ').Append(FormatValue(node.HighValue)).Append(']');
 		}
 		else // Scalar
 		{
@@ -203,29 +292,16 @@ public static class ParticlesXmlWriter
 			sb.Append(FormatValue(value));
 		}
 
-
-		if ((nodeIndex != 0 || node.Time != 0) && (nodeIndex != track.Nodes.Length - 1 || node.Time != 1))
-		{
-			if (nodeIndex != 0 && nodeIndex != track.Nodes.Length - 1)
-			{
-				var predictedTime = (track.Nodes[nodeIndex + 1].Time - track.Nodes[nodeIndex - 1].Time) / 2;
-				if (predictedTime != node.Time)
-					AppendTime();
-			}
-			else
-				AppendTime();
-		}
+		sb.Append(',').Append(FormatValue(node.Time * 100));
 
 		if (node.CurveType != ParticlesCurveType.Linear)
 			sb.Append(' ').Append(node.CurveType);
 
 		return sb.ToString();
 
-		void AppendTime() => sb.Append(',').Append(FormatValue(node.Time * 100));
-
 		string FormatValue(float value)
 		{
-			var ret = value.ToString("#.##");
+			var ret = value.ToString("#.###");
 			return ret == "" ? "0" : ret;
 		}
 	}
