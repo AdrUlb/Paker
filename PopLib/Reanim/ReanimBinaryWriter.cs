@@ -35,7 +35,6 @@ public static class ReanimBinaryWriter
 			WriteTrack(track, ms);
 
 		ms.Position = 0;
-		
 		AssetCompression.Compress(ms, stream);
 	}
 

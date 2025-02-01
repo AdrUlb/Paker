@@ -1,6 +1,6 @@
 ﻿namespace PopLib.Reanim;
 
-public struct ReanimTransform
+public sealed class ReanimTransform
 {
 	public const float DefaultFieldPlaceholder = -10000;
 

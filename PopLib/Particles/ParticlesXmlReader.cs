@@ -1,4 +1,3 @@
-using PopLib.Reanim;
 using System.Text;
 using System.Xml;
 
@@ -6,13 +5,13 @@ namespace PopLib.Particles;
 
 public static class ParticlesXmlReader
 {
-	public static ParticlesEffect ReadFromStream(Stream stream)
+	public static ParticlesDefinition ReadFromStream(Stream stream)
 	{
 		using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
 		return ReadFromString(streamReader.ReadToEnd());
 	}
 
-	public static ParticlesEffect ReadFromString(string str)
+	public static ParticlesDefinition ReadFromString(string str)
 	{
 		using var stringReader = new StringReader("<root>" + str + "</root>");
 		var settings = new XmlReaderSettings

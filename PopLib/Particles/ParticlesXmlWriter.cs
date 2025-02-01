@@ -1,12 +1,11 @@
 using System.Diagnostics;
-using System.Globalization;
 using System.Text;
 
 namespace PopLib.Particles;
 
 public static class ParticlesXmlWriter
 {
-	public static void WriteToStream(ParticlesEffect particles, Stream stream)
+	public static void WriteToStream(ParticlesDefinition particles, Stream stream)
 	{
 		using var writer = new StreamWriter(stream, Encoding.UTF8, leaveOpen: true);
 
@@ -15,7 +14,7 @@ public static class ParticlesXmlWriter
 		writer.Write(builder.ToString());
 	}
 
-	public static void WriteToStringBuilder(ParticlesEffect particles, StringBuilder builder)
+	public static void WriteToStringBuilder(ParticlesDefinition particles, StringBuilder builder)
 	{
 		foreach (var emitter in particles.Emitters)
 			WriteEmitter(emitter, builder);

@@ -4,7 +4,7 @@ namespace PopLib.Particles;
 
 public static class ParticlesBinaryReader
 {
-	public static ParticlesEffect ReadFromStream(Stream stream)
+	public static ParticlesDefinition ReadFromStream(Stream stream)
 	{
 		using var ms = new MemoryStream();
 		AssetCompression.Decompress(stream, ms);
@@ -25,37 +25,18 @@ public static class ParticlesBinaryReader
 
 		for (var i = 0; i < emitterCount; i++)
 		{
-			ref var emitter = ref emitters[i];
-			emitter = new();
+			var emitter = new ParticlesEmitter();
+			emitters[i] = emitter;
 
 			// FIXME
-			ms.Position += 4;
+			ms.ReadInt();
 
 			emitter.ImageCol = ms.ReadInt();
 			emitter.ImageRow = ms.ReadInt();
 			emitter.ImageFrames = ms.ReadInt();
 			emitter.Animated = ms.ReadInt();
+
 			var particleFlags = ms.ReadUint();
-			emitter.EmitterType = (ParticlesEmitterType)ms.ReadInt();
-
-			// FIXME
-			ms.Position += 47 * 4;
-
-			var fieldCount = ms.ReadInt();
-			if (fieldCount > 0)
-				emitter.Fields = new ParticlesField[fieldCount];
-
-			ms.Position += 4;
-
-			var systemFieldCount = ms.ReadInt();
-			if (systemFieldCount > 0)
-				emitter.SystemFields = new ParticlesField[systemFieldCount];
-
-			ms.Position += 32 * 4;
-
-			if ((particleFlags & ~0b101111111011) != 0)
-				throw new($"FIXME: {Convert.ToString(particleFlags, 2)}");
-
 			emitter.RandomLaunchSpin = (particleFlags & 1) != 0;
 			emitter.AlignLaunchSpin = ((particleFlags >> 1) & 1) != 0;
 			emitter.SystemLoops = ((particleFlags >> 3) & 1) != 0;
@@ -66,17 +47,38 @@ public static class ParticlesBinaryReader
 			emitter.Additive = ((particleFlags >> 8) & 1) != 0;
 			emitter.FullScreen = ((particleFlags >> 9) & 1) != 0;
 			emitter.HardwareOnly = ((particleFlags >> 11) & 1) != 0;
+
+			emitter.EmitterType = (ParticlesEmitterType)ms.ReadInt();
+
+			// FIXME
+			ms.Position += 47 * 4;
+
+			var fieldCount = ms.ReadInt();
+			if (fieldCount > 0)
+				emitter.Fields = new ParticlesField[fieldCount];
+
+			// FIXME
+			ms.ReadInt();
+
+			var systemFieldCount = ms.ReadInt();
+			if (systemFieldCount > 0)
+				emitter.SystemFields = new ParticlesField[systemFieldCount];
+
+			ms.Position += 32 * 4;
+
+			if ((particleFlags & ~0b101111111011) != 0)
+				throw new($"FIXME: {Convert.ToString(particleFlags, 2)}");
 		}
 
 		for (var i = 0; i < emitterCount; i++)
 		{
-			ref var emitter = ref emitters[i];
+			var emitter = emitters[i];
 			emitter.Image = ms.ReadString();
 			emitter.Name = ms.ReadString();
 
 			emitter.SystemDuration = ms.ReadFloatParameterTrack();
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
 			emitter.CrossFadeDuration = ms.ReadFloatParameterTrack();
@@ -90,25 +92,25 @@ public static class ParticlesBinaryReader
 			emitter.EmitterBoxX = ms.ReadFloatParameterTrack();
 			emitter.EmitterBoxY = ms.ReadFloatParameterTrack();
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
 			emitter.EmitterSkewX = ms.ReadFloatParameterTrack();
 			emitter.EmitterSkewY = ms.ReadFloatParameterTrack();
 			emitter.ParticleDuration = ms.ReadFloatParameterTrack();
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
 			emitter.SystemAlpha = ms.ReadFloatParameterTrack();
 
-			if (ms.ReadUint() != 0)
+			if (ms.ReadInt() != 0)
 				throw new("FIXME");
 
 			emitter.LaunchSpeed = ms.ReadFloatParameterTrack();
@@ -127,7 +129,8 @@ public static class ParticlesBinaryReader
 			emitter.ParticleScale = ms.ReadFloatParameterTrack();
 			emitter.ParticleStretch = ms.ReadFloatParameterTrack();
 			emitter.CollisionReflect = ms.ReadFloatParameterTrack();
-			emitter.CollisionSpin = ms.ReadFloatParameterTrack();;
+			emitter.CollisionSpin = ms.ReadFloatParameterTrack();
+			;
 			emitter.ClipTop = ms.ReadFloatParameterTrack();
 			emitter.ClipBottom = ms.ReadFloatParameterTrack();
 			emitter.ClipLeft = ms.ReadFloatParameterTrack();
@@ -140,7 +143,7 @@ public static class ParticlesBinaryReader
 
 	private static void ReadFields(this Stream stream, ParticlesField[]? fields)
 	{
-		if (stream.ReadUint() != 20)
+		if (stream.ReadInt() != 20)
 			throw new("FIXME");
 
 		if (fields == null)
@@ -148,11 +151,11 @@ public static class ParticlesBinaryReader
 
 		for (var i = 0; i < fields.Length; i++)
 		{
-			ref var field = ref fields[i];
-			field = new()
+			var field = new ParticlesField
 			{
 				FieldType = (ParticlesFieldType)stream.ReadInt()
 			};
+			fields[i] = field;
 
 			// FIXME
 			stream.ReadInt();
@@ -161,9 +164,8 @@ public static class ParticlesBinaryReader
 			stream.ReadInt();
 		}
 
-		for (var i = 0; i < fields.Length; i++)
+		foreach (var field in fields)
 		{
-			ref var field = ref fields[i];
 			field.X = stream.ReadFloatParameterTrack();
 			field.Y = stream.ReadFloatParameterTrack();
 		}
@@ -176,13 +178,12 @@ public static class ParticlesBinaryReader
 
 		for (var i = 0; i < count; i++)
 		{
-			ref var node = ref nodes[i];
 			var time = stream.ReadFloat();
 			var lowValue = stream.ReadFloat();
 			var highValue = stream.ReadFloat();
 			var curveType = (ParticlesCurveType)stream.ReadInt();
 			var distribution = (ParticlesCurveType)stream.ReadInt();
-			node = new(time, lowValue, highValue, curveType, distribution);
+			nodes[i] = new(time, lowValue, highValue, curveType, distribution);
 		}
 		return new(nodes);
 	}

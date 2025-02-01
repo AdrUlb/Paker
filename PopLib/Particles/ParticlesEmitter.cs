@@ -1,6 +1,6 @@
 namespace PopLib.Particles;
 
-public class ParticlesEmitter()
+public sealed class ParticlesEmitter()
 {
 	public const int DefaultImageCol = 0;
 	public const int DefaultImageRow = 0;

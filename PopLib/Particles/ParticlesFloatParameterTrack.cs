@@ -1,6 +1,6 @@
 namespace PopLib.Particles;
 
-public struct ParticlesFloatParameterTrack(ParticlesFloatParameterTrackNode[] nodes)
+public sealed class ParticlesFloatParameterTrack(ParticlesFloatParameterTrackNode[] nodes)
 {
 	public readonly ParticlesFloatParameterTrackNode[] Nodes = nodes;
 }

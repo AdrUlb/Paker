@@ -9,7 +9,7 @@ public static class AssetCompression
 		outputStream.WriteUint(0xDEADFED4);
 		outputStream.WriteUint((uint)inputStream.Length);
 
-		using var zlibStream = new ZLibStream(outputStream, CompressionMode.Compress);
+		using var zlibStream = new ZLibStream(outputStream, CompressionLevel.SmallestSize);
 		inputStream.CopyTo(zlibStream);
 	}
 
@@ -19,7 +19,7 @@ public static class AssetCompression
 			throw new("FIXME");
 
 		var decompressedSize = inputStream.ReadInt();
-		
+
 		using var zlibStream = new ZLibStream(inputStream, CompressionMode.Decompress);
 		zlibStream.CopyTo(outputStream);
 	}
