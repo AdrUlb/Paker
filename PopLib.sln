@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35723.152
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopPaker", "PopPaker\PopPaker.csproj", "{664D0716-8AEC-489A-9CD8-F034287921FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{FEAF0111-0438-4A93-B1AF-25410D5E3C9F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopLib.Util", "PopLib.Util\PopLib.Util.csproj", "{D04B19DF-7415-4565-8289-70B333DC1579}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PopLib.Reanim", "PopLib.Reanim\PopLib.Reanim.csproj", "{A0A7D25B-D22B-4306-A2C4-C4BD120B1188}"
@@ -21,14 +17,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{664D0716-8AEC-489A-9CD8-F034287921FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{664D0716-8AEC-489A-9CD8-F034287921FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{664D0716-8AEC-489A-9CD8-F034287921FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{664D0716-8AEC-489A-9CD8-F034287921FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FEAF0111-0438-4A93-B1AF-25410D5E3C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FEAF0111-0438-4A93-B1AF-25410D5E3C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FEAF0111-0438-4A93-B1AF-25410D5E3C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FEAF0111-0438-4A93-B1AF-25410D5E3C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D04B19DF-7415-4565-8289-70B333DC1579}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D04B19DF-7415-4565-8289-70B333DC1579}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D04B19DF-7415-4565-8289-70B333DC1579}.Release|Any CPU.ActiveCfg = Release|Any CPU
