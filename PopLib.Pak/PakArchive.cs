@@ -11,9 +11,12 @@ public class PakArchive : IDisposable, IAsyncDisposable
 
 	internal readonly int DataOffset;
 
-	private PakArchive(string filePath)
+	private readonly bool _leaveOpen;
+
+	public PakArchive(Stream stream, bool leaveOpen = false)
 	{
-		Stream = new(File.OpenRead(filePath));
+		Stream = new PakStream(stream);
+		_leaveOpen = leaveOpen;
 
 		Span<byte> buf = stackalloc byte[512];
 		var buf4 = buf[..4];
@@ -34,7 +37,7 @@ public class PakArchive : IDisposable, IAsyncDisposable
 		{
 			var nameLength = Stream.ReadByte();
 			Stream.ReadExactly(buf[..nameLength]);
-			var name = Encoding.UTF8.GetString(buf[..nameLength]).Replace('\\', '/');
+			var name = Encoding.UTF8.GetString(buf[..nameLength]);
 
 			Stream.ReadExactly(buf4);
 			var size = BinaryPrimitives.ReadInt32LittleEndian(buf4);
@@ -55,12 +58,11 @@ public class PakArchive : IDisposable, IAsyncDisposable
 		Entries = entries;
 	}
 
-	public static PakArchive OpenRead(string fileName) => new(fileName);
-
 	public void Dispose()
 	{
 		GC.SuppressFinalize(this);
-		Stream.Dispose();
+		if (!_leaveOpen)
+			Stream.Dispose();
 	}
 
 	public async ValueTask DisposeAsync()
