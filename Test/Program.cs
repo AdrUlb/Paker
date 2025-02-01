@@ -1,5 +1,6 @@
-﻿using PopLib.Particles;
+﻿using PopLib.Particles.Serialization;
 using PopLib.Reanim;
+using PopLib.Reanim.Serialization;
 
 {
 	var files = Directory.GetFiles("reanim", "*.reanim", SearchOption.AllDirectories);
@@ -15,7 +16,7 @@ using PopLib.Reanim;
 
 		using var inputStream = File.OpenRead(file);
 		using var outputStream = File.Create(destFile);
-		ReanimBinaryWriter.WriteToStream(ReanimXmlReader.ReadFromStream(inputStream), outputStream);
+		ReanimBinarySerializer.Serialize(ReanimXmlSerializer.Deserialize(inputStream), outputStream);
 	}
 }
 
@@ -32,6 +33,6 @@ using PopLib.Reanim;
 
 		using var inputStream = File.OpenRead(file);
 		using var outputStream = File.Create(destFile);
-		ParticlesBinaryWriter.WriteToStream(ParticlesXmlReader.ReadFromStream(inputStream), outputStream);
+		ParticlesBinarySerializer.Serialize(ParticlesXmlSerializer.Deserialize(inputStream), outputStream);
 	}
 }

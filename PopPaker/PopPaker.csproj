@@ -15,8 +15,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\PopLib.Particles\PopLib.Particles.csproj" />
-		<ProjectReference Include="..\PopLib.Reanim\PopLib.Reanim.csproj"/>
+		<ProjectReference Include="..\PopLib.Pak\PopLib.Pak.csproj"/>
 	</ItemGroup>
 
 </Project>

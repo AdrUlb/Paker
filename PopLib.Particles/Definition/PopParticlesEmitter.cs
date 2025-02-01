@@ -1,0 +1,63 @@
+namespace PopLib.Particles.Definition;
+
+public sealed class PopParticlesEmitter()
+{
+	public const int DefaultImageCol = 0;
+	public const int DefaultImageRow = 0;
+	public const int DefaultImageFrames = 1;
+	public const int DefaultAnimated = 0;
+	public const PopParticlesEmitterType DefaultEmitterType = PopParticlesEmitterType.Box;
+
+	public int ImageCol = DefaultImageCol;
+	public int ImageRow = DefaultImageRow;
+	public int ImageFrames = DefaultImageFrames;
+	public int Animated = DefaultAnimated;
+	public bool RandomLaunchSpin;
+	public bool AlignLaunchSpin;
+	public bool SystemLoops;
+	public bool ParticleLoops;
+	public bool ParticlesDontFollow;
+	public bool RandomStartTime;
+	public bool DieIfOverloaded;
+	public bool Additive;
+	public bool FullScreen;
+	public bool HardwareOnly;
+	public PopParticlesEmitterType EmitterType = DefaultEmitterType;
+	public PopParticlesField[]? Fields = null;
+	public PopParticlesField[]? SystemFields = null;
+	public string? Image;
+	public string? Name;
+	public PopParticlesTrack? SystemDuration = null;
+	public PopParticlesTrack? CrossFadeDuration = null;
+	public PopParticlesTrack? SpawnRate = null;
+	public PopParticlesTrack? SpawnMinActive = null;
+	public PopParticlesTrack? SpawnMaxActive = null;
+	public PopParticlesTrack? SpawnMaxLaunched = null;
+	public PopParticlesTrack? EmitterRadius = null;
+	public PopParticlesTrack? EmitterOffsetX = null;
+	public PopParticlesTrack? EmitterOffsetY = null;
+	public PopParticlesTrack? EmitterBoxX = null;
+	public PopParticlesTrack? EmitterBoxY = null;
+	public PopParticlesTrack? EmitterSkewX = null;
+	public PopParticlesTrack? EmitterSkewY = null;
+	public PopParticlesTrack? ParticleDuration = null;
+	public PopParticlesTrack? SystemAlpha = null;
+	public PopParticlesTrack? LaunchSpeed = null;
+	public PopParticlesTrack? LaunchAngle = null;
+	public PopParticlesTrack? ParticleRed = null;
+	public PopParticlesTrack? ParticleGreen = null;
+	public PopParticlesTrack? ParticleBlue = null;
+	public PopParticlesTrack? ParticleAlpha = null;
+	public PopParticlesTrack? ParticleBrightness = null;
+	public PopParticlesTrack? ParticleSpinAngle = null;
+	public PopParticlesTrack? ParticleSpinSpeed = null;
+	public PopParticlesTrack? ParticleScale = null;
+	public PopParticlesTrack? ParticleStretch = null;
+	public PopParticlesTrack? CollisionReflect = null;
+	public PopParticlesTrack? CollisionSpin = null;
+	public PopParticlesTrack? ClipTop = null;
+	public PopParticlesTrack? ClipBottom = null;
+	public PopParticlesTrack? ClipLeft = null;
+	public PopParticlesTrack? ClipRight = null;
+	public PopParticlesTrack? AnimationRate = null;
+}
