@@ -6,29 +6,29 @@ namespace PopLib.Reanim.Serialization;
 
 public static class ReanimXmlSerializer
 {
-	public static void Serialize(ReanimAnimation animation, Stream outputStream)
+	public static void Serialize(ReanimDefinition definition, Stream outputStream)
 	{
 		using var writer = new StreamWriter(outputStream, Encoding.UTF8, leaveOpen: true);
 
 		var builder = new StringBuilder();
-		Serialize(animation, builder);
+		Serialize(definition, builder);
 		writer.Write(builder.ToString());
 	}
 
-	public static void Serialize(ReanimAnimation animation, StringBuilder outputStringBuilder)
+	public static void Serialize(ReanimDefinition definition, StringBuilder outputStringBuilder)
 	{
-		outputStringBuilder.Append("<fps>").Append(animation.Fps).AppendLine("</fps>");
+		outputStringBuilder.Append("<fps>").Append(definition.Fps).AppendLine("</fps>");
 
-		foreach (var t in animation.Tracks)
+		foreach (var t in definition.Tracks)
 			WriteTrack(t, outputStringBuilder);
 	}
 
-	private static void WriteTrack(ReanimTrack track, StringBuilder builder)
+	private static void WriteTrack(ReanimTrackDefinition trackDefinition, StringBuilder builder)
 	{
-		builder.AppendLine("<track>").Append("<name>").Append(track.Name).AppendLine("</name>");
+		builder.AppendLine("<track>").Append("<name>").Append(trackDefinition.Name).AppendLine("</name>");
 
-		for (var i = 0; i < track.Transforms.Length; i++)
-			WriteTransform(track.Transforms[i], builder);
+		for (var i = 0; i < trackDefinition.Transforms.Length; i++)
+			WriteTransform(trackDefinition.Transforms[i], builder);
 
 		builder.AppendLine("</track>");
 	}
@@ -73,13 +73,13 @@ public static class ReanimXmlSerializer
 		builder.AppendLine("</t>");
 	}
 
-	public static ReanimAnimation Deserialize(Stream stream)
+	public static ReanimDefinition Deserialize(Stream stream)
 	{
 		using var streamReader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
 		return Deserialize(streamReader.ReadToEnd());
 	}
 
-	public static ReanimAnimation Deserialize(string str)
+	public static ReanimDefinition Deserialize(string str)
 	{
 		using var stringReader = new StringReader("<root>" + str + "</root>");
 		var settings = new XmlReaderSettings
@@ -92,7 +92,7 @@ public static class ReanimXmlSerializer
 			throw new("FIXME");
 
 		float? fps = null;
-		var tracks = new List<ReanimTrack>();
+		var tracks = new List<ReanimTrackDefinition>();
 
 		while (reader.Read())
 		{
@@ -135,7 +135,7 @@ public static class ReanimXmlSerializer
 		return new(fps.Value, [..tracks]);
 	}
 
-	private static ReanimTrack ReadTrack(XmlReader reader)
+	private static ReanimTrackDefinition ReadTrack(XmlReader reader)
 	{
 		string? name = null;
 
@@ -179,7 +179,9 @@ public static class ReanimXmlSerializer
 		if (name == null)
 			throw new("FIXME");
 
-		return new(name, [..transforms]);
+		var track = new ReanimTrackDefinition(name, [..transforms]);
+		track.ReplaceTransformsPlaceholders();
+		return track;
 	}
 
 	private static ReanimTransform ReadTransform(XmlReader reader)
@@ -249,16 +251,8 @@ public static class ReanimXmlSerializer
 		}
 		end:
 
-		return new()
+		return new ReanimTransform(x, y, skewX, skewY, scaleX, scaleY, frame, alpha)
 		{
-			X = x,
-			Y = y,
-			SkewX = skewX,
-			SkewY = skewY,
-			ScaleX = scaleX,
-			ScaleY = scaleY,
-			Frame = frame,
-			Alpha = alpha,
 			ImageName = imageName,
 			FontName = fontName,
 			Text = text

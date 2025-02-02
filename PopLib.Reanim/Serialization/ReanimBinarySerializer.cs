@@ -6,7 +6,7 @@ namespace PopLib.Reanim.Serialization;
 
 public static class ReanimBinarySerializer
 {
-	public static void Serialize(ReanimAnimation animation, Stream stream)
+	public static void Serialize(ReanimDefinition definition, Stream stream)
 	{
 		using var ms = new MemoryStream();
 
@@ -15,15 +15,15 @@ public static class ReanimBinarySerializer
 		// FIXME
 		ms.WriteInt(0);
 
-		ms.WriteInt(animation.Tracks.Length);
-		ms.WriteFloat(animation.Fps);
+		ms.WriteInt(definition.Tracks.Length);
+		ms.WriteFloat(definition.Fps);
 
 		ms.WriteInt(0);
 		ms.WriteInt(12);
 
-		for (var i = 0; i < animation.Tracks.Length; i++)
+		for (var i = 0; i < definition.Tracks.Length; i++)
 		{
-			ref var track = ref animation.Tracks[i];
+			ref var track = ref definition.Tracks[i];
 
 			// FIXME
 			ms.WriteInt(0);
@@ -32,29 +32,29 @@ public static class ReanimBinarySerializer
 			ms.WriteInt(track.Transforms.Length);
 		}
 
-		foreach (var track in animation.Tracks)
+		foreach (var track in definition.Tracks)
 			WriteTrack(track, ms);
 
 		ms.Position = 0;
 		AssetCompression.Compress(ms, stream);
 	}
 
-	private static void WriteTrack(ReanimTrack track, Stream stream)
+	private static void WriteTrack(ReanimTrackDefinition trackDefinition, Stream stream)
 	{
-		stream.WriteString(track.Name);
+		stream.WriteString(trackDefinition.Name);
 
-		stream.WriteInt(0x0000002C);
+		stream.WriteInt(0x2C);
 
-		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
+		for (var transformIndex = 0; transformIndex < trackDefinition.Transforms.Length; transformIndex++)
 		{
-			stream.WriteFloat(track.Transforms[transformIndex].X);
-			stream.WriteFloat(track.Transforms[transformIndex].Y);
-			stream.WriteFloat(track.Transforms[transformIndex].SkewX);
-			stream.WriteFloat(track.Transforms[transformIndex].SkewY);
-			stream.WriteFloat(track.Transforms[transformIndex].ScaleX);
-			stream.WriteFloat(track.Transforms[transformIndex].ScaleY);
-			stream.WriteFloat(track.Transforms[transformIndex].Frame);
-			stream.WriteFloat(track.Transforms[transformIndex].Alpha);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].X);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].Y);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].SkewX);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].SkewY);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].ScaleX);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].ScaleY);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].Frame);
+			stream.WriteFloat(trackDefinition.Transforms[transformIndex].Alpha);
 
 			// FIXME
 			stream.WriteInt(0);
@@ -62,15 +62,15 @@ public static class ReanimBinarySerializer
 			stream.WriteInt(0);
 		}
 
-		for (var transformIndex = 0; transformIndex < track.Transforms.Length; transformIndex++)
+		for (var transformIndex = 0; transformIndex < trackDefinition.Transforms.Length; transformIndex++)
 		{
-			stream.WriteString(track.Transforms[transformIndex].ImageName ?? "");
-			stream.WriteString(track.Transforms[transformIndex].FontName ?? "");
-			stream.WriteString(track.Transforms[transformIndex].Text ?? "");
+			stream.WriteString(trackDefinition.Transforms[transformIndex].ImageName ?? "");
+			stream.WriteString(trackDefinition.Transforms[transformIndex].FontName ?? "");
+			stream.WriteString(trackDefinition.Transforms[transformIndex].Text ?? "");
 		}
 	}
 
-	public static ReanimAnimation Deserialize(Stream stream)
+	public static ReanimDefinition Deserialize(Stream stream)
 	{
 		using var ms = new MemoryStream();
 		AssetCompression.Decompress(stream, ms);
@@ -91,7 +91,7 @@ public static class ReanimBinarySerializer
 		if (ms.ReadUint() != 12)
 			throw new("FIXME");
 
-		var tracks = new ReanimTrack[trackCount];
+		var tracks = new ReanimTrackDefinition[trackCount];
 		Span<int> transformCounts = stackalloc int[trackCount];
 
 		for (var i = 0; i < trackCount; i++)
@@ -109,7 +109,7 @@ public static class ReanimBinarySerializer
 		return new(fps, tracks);
 	}
 
-	private static ReanimTrack ReadTrack(int transformCount, Stream stream)
+	private static ReanimTrackDefinition ReadTrack(int transformCount, Stream stream)
 	{
 		var name = stream.ReadString();
 		var transforms = new ReanimTransform[transformCount];
@@ -119,15 +119,16 @@ public static class ReanimBinarySerializer
 
 		for (var i = 0; i < transforms.Length; i++)
 		{
-			transforms[i].X = stream.ReadFloat();
-			transforms[i].Y = stream.ReadFloat();
-			transforms[i].SkewX = stream.ReadFloat();
-			transforms[i].SkewY = stream.ReadFloat();
-			transforms[i].ScaleX = stream.ReadFloat();
-			transforms[i].ScaleY = stream.ReadFloat();
-			transforms[i].Frame = stream.ReadFloat();
-			transforms[i].Alpha = stream.ReadFloat();
-
+			var x = stream.ReadFloat();
+			var y = stream.ReadFloat();
+			var skewX = stream.ReadFloat();
+			var skewY = stream.ReadFloat();
+			var scaleX = stream.ReadFloat();
+			var scaleY = stream.ReadFloat();
+			var frame = stream.ReadFloat();
+			var alpha = stream.ReadFloat();
+			transforms[i] = new ReanimTransform(x, y, skewX, skewY, scaleX, scaleY, frame, alpha);
+			
 			// FIXME
 			stream.ReadUint();
 			stream.ReadUint();
@@ -136,11 +137,14 @@ public static class ReanimBinarySerializer
 
 		for (var i = 0; i < transforms.Length; i++)
 		{
-			transforms[i].ImageName = stream.ReadString();
-			transforms[i].FontName = stream.ReadString();
-			transforms[i].Text = stream.ReadString();
+			ref var transform = ref transforms[i];
+			transform.ImageName = stream.ReadString();
+			transform.FontName = stream.ReadString();
+			transform.Text = stream.ReadString();
 		}
 
-		return new(name, transforms);
+		var track = new ReanimTrackDefinition(name, transforms);
+		track.ReplaceTransformsPlaceholders();
+		return track;
 	}
 }
