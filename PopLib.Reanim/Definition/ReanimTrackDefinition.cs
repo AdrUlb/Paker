@@ -46,7 +46,7 @@ public sealed class ReanimTrackDefinition(string name, ReanimTransform[] transfo
 
 	void ReplaceTransformsPlaceholderField(ref string? value, ref string? other)
 	{
-		if (value == null)
+		if (string.IsNullOrEmpty(value))
 			value = other;
 		else
 			other = value;

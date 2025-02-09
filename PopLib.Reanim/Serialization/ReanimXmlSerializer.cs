@@ -251,7 +251,7 @@ public static class ReanimXmlSerializer
 		}
 		end:
 
-		return new ReanimTransform(x, y, skewX, skewY, scaleX, scaleY, frame, alpha)
+		return new(x, y, skewX, skewY, scaleX, scaleY, frame, alpha)
 		{
 			ImageName = imageName,
 			FontName = fontName,

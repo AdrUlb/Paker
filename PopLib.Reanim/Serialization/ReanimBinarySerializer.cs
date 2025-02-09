@@ -127,7 +127,7 @@ public static class ReanimBinarySerializer
 			var scaleY = stream.ReadFloat();
 			var frame = stream.ReadFloat();
 			var alpha = stream.ReadFloat();
-			transforms[i] = new ReanimTransform(x, y, skewX, skewY, scaleX, scaleY, frame, alpha);
+			transforms[i] = new(x, y, skewX, skewY, scaleX, scaleY, frame, alpha);
 			
 			// FIXME
 			stream.ReadUint();
